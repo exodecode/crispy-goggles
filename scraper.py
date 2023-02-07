@@ -26,4 +26,3 @@ track_lines = track_lines[1::2]
 print(f"{artist} - {album}\n")
 print("\n".join(track_lines))
 print(f"\nSong Count: {len(track_lines)}")
-
