@@ -1,6 +1,6 @@
 import re
 import numpy
-# Using readlines()
+
 file1 = open('pretty.html', 'r')
 
 lines = file1.readlines()
