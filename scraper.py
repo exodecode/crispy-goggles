@@ -1,28 +1,47 @@
 import re
 import numpy
 
-file1 = open('pretty.html', 'r')
+file1 = open('src.html', 'r')
+text = file1.read()
+out = ""
+for c in text:
+    if not c == '\n' and not c == '\r':
+        out += c
 
-lines = file1.readlines()
-artist = ""
-album = ""
+out1 = re.sub(r">", r">\n", out)
 
-track_lines = []
-for line in lines:
-    a = re.search(r"Album by (.+)", line)
-    al = re.search(r"<title>(.+) - Album by", line)
-    if(a):
-        artist = a.group(1)[0:-2]
-    if(al):
-        album = al.group(1)
+f = open("out.html", "w")
+f.write(out1)
+f.close()
 
-    t = re.search(r"track (.+?)\">", line)
+file2 = open('out.html', 'r')
+lines = file2.readlines()
+lines = list(filter(lambda x: "<a " in x or "</a>" in x, lines))
 
-    if(t):
-        track_lines.append(f'{artist} - {t.group(1).replace("&amp;", "&")}')
+new = []
+for l in lines:
+    new.append(l.strip() if "<a" in l else l)
 
-track_lines = track_lines[1::2]
+new = ''.join(new).split('\n')
+tracks = []
+artists = ''
+track = ''
+for n in new:
+    track_search = re.search(r"track/(.+)\">(.+)</a>", n)
+    if(track_search):
+        if track != '' and artists != '':
+            tracks.append(f'{artists.strip()} - {track}'.replace("&#x27;", "'").replace("&amp;", "&"))
+            artists = ''
 
-print(f"{artist} - {album}\n")
-print("\n".join(track_lines))
-print(f"\nSong Count: {len(track_lines)}")
+        track = track_search.group(2)
+
+    artist_search = re.search(r"artist/(.+)\">(.+)</a>", n)
+    if(artist_search):
+        artist = artist_search.group(2)
+        if len(artists) == 0:
+            artists = artist
+        elif n[0] == ',':
+            artists += f', {artist}'
+
+print('\n'.join(tracks))
+print(f'\nSongs: {len(tracks)}')
